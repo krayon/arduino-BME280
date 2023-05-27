@@ -32,6 +32,9 @@ courtesy of Brian McNoldy at http://andrew.rsmas.miami.edu.
 
 #include "BME280.h"
 
+#define DEBUG_PRINT(x) Serial.print(x)
+#define DEBUG_PRINTLN(x) Serial.println(x)
+#define DEBUG_PRINTF(x...) Serial.printf(x)
 
 /****************************************************************/
 BME280::BME280
@@ -47,12 +50,15 @@ BME280::BME280
 bool BME280::Initialize()
 {
    bool success(true);
+DEBUG_PRINTLN(F("BME280::Initialize()"));
 
    success &= ReadChipID();
+if (!success) DEBUG_PRINTLN("success(ReadChipID): FAIL"); else DEBUG_PRINTLN("  success: SUCCESS");
 
    if(success)
    {
       success &= ReadTrim();
+if (!success) DEBUG_PRINTLN("success(ReadTrim): FAIL"); else DEBUG_PRINTLN("  success: SUCCESS");
 
       if(m_settings.filter != Filter_Off)
       {
@@ -71,6 +77,7 @@ bool BME280::Initialize()
 /****************************************************************/
 void BME280::InitializeFilter()
 {
+DEBUG_PRINTLN(F("BME280::InitializeFilter()"));
   // Force an unfiltered measurement to populate the filter buffer.
   // This fixes a bug that causes the first read to always be 28.82 °C 81732.34 hPa.
   Filter filter = m_settings.filter;
@@ -88,6 +95,7 @@ void BME280::InitializeFilter()
 /****************************************************************/
 bool BME280::ReadChipID()
 {
+DEBUG_PRINTLN(F("BME280::ReadChipID()"));
    uint8_t id[1];
 
    ReadRegister(ID_ADDR, &id[0], 1);
@@ -112,6 +120,7 @@ bool BME280::ReadChipID()
 /****************************************************************/
 void BME280::WriteSettings()
 {
+DEBUG_PRINTLN(F("BME280::WriteSettings()"));
    uint8_t ctrlHum, ctrlMeas, config;
 
    CalculateRegisters(ctrlHum, ctrlMeas, config);
@@ -128,6 +137,7 @@ void BME280::setSettings
    const Settings& settings
 )
 {
+DEBUG_PRINTLN(F("BME280::setSettings()"));
    m_settings = settings;
    WriteSettings();
 }
@@ -136,6 +146,7 @@ void BME280::setSettings
 /****************************************************************/
 const BME280::Settings& BME280::getSettings() const
 {
+DEBUG_PRINTLN(F("BME280::getSettings()"));
    return m_settings;
 }
 
@@ -145,6 +156,7 @@ bool BME280::begin
 (
 )
 {
+DEBUG_PRINTLN(F("BME280::begin()"));
    bool success = Initialize();
    success &= m_initialized;
 
@@ -154,6 +166,7 @@ bool BME280::begin
 /****************************************************************/
 bool BME280::reset()
 {
+DEBUG_PRINTLN(F("BME280::reset()"));
    WriteRegister(RESET_ADDR, RESET_VALUE);
    delay(2); //max. startup time according to datasheet
    return(begin());
@@ -167,6 +180,7 @@ void BME280::CalculateRegisters
    uint8_t& config
 )
 {
+DEBUG_PRINTLN(F("BME280::CalculateRegisters()"));
    // ctrl_hum register. (ctrl_hum[2:0] = Humidity oversampling rate.)
    ctrlHum = (uint8_t)m_settings.humOSR;
    // ctrl_meas register. (ctrl_meas[7:5] = temperature oversampling rate, ctrl_meas[4:2] = pressure oversampling rate, ctrl_meas[1:0] = mode.)
@@ -179,6 +193,7 @@ void BME280::CalculateRegisters
 /****************************************************************/
 bool BME280::ReadTrim()
 {
+DEBUG_PRINTLN(F("BME280::ReadTrim()"));
    uint8_t ord(0);
    bool success = true;
 
@@ -218,6 +233,7 @@ bool BME280::ReadData
    int32_t data[SENSOR_DATA_LENGTH]
 )
 {
+DEBUG_PRINTLN(F("BME280::ReadData()"));
    bool success;
    uint8_t buffer[SENSOR_DATA_LENGTH];
 
@@ -257,6 +273,7 @@ float BME280::CalculateTemperature
    TempUnit unit
 )
 {
+DEBUG_PRINTLN(F("BME280::CalculateTemperature()"));
    // Code based on calibration algorthim provided by Bosch.
    int32_t var1, var2, final;
    uint16_t dig_T1 = (m_dig[1] << 8) | m_dig[0];
@@ -277,6 +294,7 @@ float BME280::CalculateHumidity
    int32_t t_fine
 )
 {
+DEBUG_PRINTLN(F("BME280::CalculateHumidity()"));
    // Code based on calibration algorthim provided by Bosch.
    int32_t var1;
    uint8_t   dig_H1 =   m_dig[24];
@@ -306,6 +324,7 @@ float BME280::CalculatePressure
    PresUnit unit
 )
 {
+DEBUG_PRINTLN(F("BME280::CalculatePressure()"));
    // Code based on calibration algorthim provided by Bosch.
    int64_t var1, var2, pressure;
    float final;
@@ -371,6 +390,7 @@ float BME280::temp
    TempUnit unit
 )
 {
+DEBUG_PRINTLN(F("BME280::temp()"));
    int32_t data[8];
    int32_t t_fine;
    if(!ReadData(data)){ return NAN; }
@@ -385,6 +405,7 @@ float BME280::pres
    PresUnit unit
 )
 {
+DEBUG_PRINTLN(F("BME280::pres()"));
    int32_t data[8];
    int32_t t_fine;
    if(!ReadData(data)){ return NAN; }
@@ -398,6 +419,7 @@ float BME280::pres
 /****************************************************************/
 float BME280::hum()
 {
+DEBUG_PRINTLN(F("BME280::hum()"));
    int32_t data[8];
    int32_t t_fine;
    if(!ReadData(data)){ return NAN; }
@@ -418,6 +440,7 @@ void BME280::read
    PresUnit presUnit
 )
 {
+DEBUG_PRINTLN(F("BME280::read()"));
    int32_t data[8];
    int32_t t_fine;
    if(!ReadData(data)){
@@ -438,5 +461,6 @@ BME280::ChipModel BME280::chipModel
 (
 )
 {
+DEBUG_PRINTLN(F("BME280::ChipModel()"));
    return m_chip_model;
 }
