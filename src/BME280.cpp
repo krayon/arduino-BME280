@@ -98,7 +98,12 @@ bool BME280::ReadChipID()
 DEBUG_PRINTLN(F("BME280::ReadChipID()"));
    uint8_t id[1];
 
-   ReadRegister(ID_ADDR, &id[0], 1);
+   //ReadRegister(ID_ADDR, &id[0], 1);
+if (ReadRegister(ID_ADDR, &id[0], 1))
+DEBUG_PRINTLN(F("ReadRegister: Success"));
+else DEBUG_PRINTLN(F("ReadRegister: FAIL"));
+DEBUG_PRINTLN(F("ReadRegister: id[0]: %d", id[0]));
+DEBUG_PRINTLN(F("ReadRegister: id[1]: %d", id[1]));
 
    switch(id[0])
    {
