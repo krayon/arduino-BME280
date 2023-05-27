@@ -102,8 +102,8 @@ DEBUG_PRINTLN(F("BME280::ReadChipID()"));
 if (ReadRegister(ID_ADDR, &id[0], 1))
 DEBUG_PRINTLN(F("ReadRegister: Success"));
 else DEBUG_PRINTLN(F("ReadRegister: FAIL"));
-DEBUG_PRINTLN(F("ReadRegister: id[0]: %d", id[0]));
-DEBUG_PRINTLN(F("ReadRegister: id[1]: %d", id[1]));
+DEBUG_PRINTLN("ReadRegister: id[0]: %d", id[0]);
+DEBUG_PRINTLN("ReadRegister: id[1]: %d", id[1]);
 
    switch(id[0])
    {
